@@ -11,11 +11,7 @@ import SwiftSoup
 extension Element {
     struct OutputContext: OptionSet {
         let rawValue: UInt
-        
-        init(rawValue: UInt) {
-            self.rawValue = rawValue
-        }
-        
+
         static let isSingleChildInRoot = OutputContext(rawValue: 1 << 0)
         static let isFirstChild = OutputContext(rawValue: 1 << 1)
         static let isFinalChild = OutputContext(rawValue: 1 << 2)
@@ -27,11 +23,7 @@ extension Element {
 extension Node {
     struct OutputContext: OptionSet {
         let rawValue: UInt
-        
-        init(rawValue: UInt) {
-            self.rawValue = rawValue
-        }
-        
+
         static let isSingleChildInRoot = OutputContext(rawValue: 1 << 0)
         static let isFirstChild = OutputContext(rawValue: 1 << 1)
         static let isFinalChild = OutputContext(rawValue: 1 << 2)

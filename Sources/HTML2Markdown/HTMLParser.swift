@@ -11,12 +11,12 @@ import SwiftSoup
 public struct HTMLParser {
     let baseUri: String
     let parser: Parser
-    
+
     public init(baseUri: String = "", parser: Parser = Parser.htmlParser()) {
         self.baseUri = baseUri
         self.parser = parser
     }
-    
+
     public func parse(html: String, evaluateMarkdown: Bool = false) throws -> Node {
         let htmlString: String
         if evaluateMarkdown {
@@ -33,6 +33,6 @@ public struct HTMLParser {
         let document = try SwiftSoup.parse(htmlString, baseUri, parser)
         return document
     }
-    
+
     static var codeRegex = try? NSRegularExpression(pattern: "```.+```", options: .dotMatchesLineSeparators)
 }

@@ -11,12 +11,12 @@ import SwiftSoup
 public enum RawTextGenerator {
     public struct Options: OptionSet {
         public let rawValue: Int
-        
+
         /// Copy link text instead of URL
         public static let keepLinkText = Options(rawValue: 1 << 0)
         /// Try to respect Mastodon classes
         public static let mastodon = Options(rawValue: 1 << 2)
-        
+
         public init(rawValue: Int) {
             self.rawValue = rawValue
         }
@@ -31,7 +31,7 @@ extension Node {
         return rawTextRoot(options: options, context: [], childIndex: 0)
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
-    
+
     private func rawTextRoot(
         options: RawTextGenerator.Options,
         context: OutputContext,
@@ -40,7 +40,7 @@ extension Node {
     ) -> String {
         var result = ""
         let childrenWithContent = self.getChildNodes().filter { $0.shouldRender() }
-        
+
         for (index, child) in childrenWithContent.enumerated() {
             var context: OutputContext = []
             if childrenWithContent.count == 1 {
@@ -54,10 +54,10 @@ extension Node {
             }
             result += child.rawText(options: options, context: context, childIndex: index)
         }
-        
+
         return result
     }
-    
+
     private func rawText(
         options: RawTextGenerator.Options,
         context: OutputContext,
@@ -66,7 +66,7 @@ extension Node {
     ) -> String {
         var result = ""
         let children = getChildNodes()
-        
+
         switch self.nodeName() {
         case "span":
             if let classes = getAttributes()?.get(key: "class").split(separator: " ") {
@@ -74,9 +74,9 @@ extension Node {
                     if classes.contains("invisible") {
                         break
                     }
-                    
+
                     result += output(children, options: options)
-                    
+
                     if classes.contains("ellipsis") {
                         result += "…"
                     }
@@ -91,9 +91,9 @@ extension Node {
                !context.contains(.isFirstChild) {
                 result += "\n"
             }
-            
+
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            
+
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
                 result += "\n"
@@ -102,31 +102,31 @@ extension Node {
             if !context.contains(.isFinalChild) {
                 result += "\n"
             }
-            // TODO: strip whitespace on the next line of text, immediately after this linebreak
+        // TODO: strip whitespace on the next line of text, immediately after this linebreak
         case "em":
             var prefix = ""
             var postfix = ""
-            
+
             let blockToPass: (String, String) -> Void = {
                 prefix = $0
                 postfix = $1
             }
-            
+
             let text = output(children, options: options, prefixPostfixBlock: blockToPass)
-            
+
             // I'd rather use _ here, but cmark-gfm has better behaviour with *
             result += "\(prefix)*" + text + "*\(postfix)"
         case "strong":
             var prefix = ""
             var postfix = ""
-            
+
             let blockToPass: (String, String) -> Void = {
                 prefix = $0
                 postfix = $1
             }
-            
+
             let text = output(children, options: options, prefixPostfixBlock: blockToPass)
-            
+
             result += "\(prefix)**" + text + "**\(postfix)"
         case "a":
             if let destination = getAttributes()?.get(key: "href") {
@@ -143,7 +143,7 @@ extension Node {
                 result += "\n\n"
             }
             result += output(children, options: options, context: .isUnorderedList)
-            
+
             if !context.contains(.isFinalChild) {
                 result += "\n\n"
             }
@@ -152,7 +152,7 @@ extension Node {
                 result += "\n\n"
             }
             result += output(children, options: options, context: .isOrderedList)
-            
+
             if !context.contains(.isFinalChild) {
                 result += "\n\n"
             }
@@ -171,10 +171,10 @@ extension Node {
         default:
             result += output(children, options: options)
         }
-        
+
         return result
     }
-    
+
     private func output(
         _ children: [Node],
         options: RawTextGenerator.Options,
@@ -183,7 +183,7 @@ extension Node {
     ) -> String {
         var result = ""
         let childrenWithContent = children.filter { $0.shouldRender() }
-        
+
         for (index, child) in childrenWithContent.enumerated() {
             var context = context
             if index == 0 {
@@ -194,7 +194,7 @@ extension Node {
             }
             result += child.rawText(options: options, context: context, childIndex: index, prefixPostfixBlock: prefixPostfixBlock)
         }
-        
+
         if let prefixPostfixBlock = prefixPostfixBlock {
             if result.hasPrefix(" "), result.hasSuffix(" ") {
                 prefixPostfixBlock(" ", " ")
@@ -207,10 +207,10 @@ extension Node {
                 result = result.trimmingCharacters(in: .whitespaces)
             }
         }
-        
+
         return result.stringByDecodingHTMLEntities
     }
-    
+
     private func shouldRender() -> Bool {
         if let element = self as? Element {
             switch element.nodeName() {
@@ -225,7 +225,7 @@ extension Node {
                 }
             }
         }
-        
+
         switch nodeName() {
         case "br":
             return true
