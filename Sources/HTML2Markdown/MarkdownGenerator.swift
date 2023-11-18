@@ -11,14 +11,14 @@ import SwiftSoup
 public enum MarkdownGenerator {
     public struct Options: OptionSet {
         public let rawValue: Int
-        
+
         /// Output a pretty bullet `•` instead of an asterisk, for unordered lists
         public static let unorderedListBullets = Options(rawValue: 1 << 0)
         /// Escape existing markdown syntax in order to prevent them being rendered
         public static let escapeMarkdown = Options(rawValue: 1 << 1)
         /// Try to respect Mastodon classes
         public static let mastodon = Options(rawValue: 1 << 2)
-        
+
         public init(rawValue: Int) {
             self.rawValue = rawValue
         }
@@ -31,20 +31,20 @@ extension Node {
     /// - Parameter options: Options to customize the formatted text
     public func markdownFormatted(options: MarkdownGenerator.Options = []) -> String {
         var markdown = markdownFormattedRoot(options: options, context: [], childIndex: 0)
-        
+
         // we only want a maximum of two consecutive newlines
         markdown = replace(regex: "[\n]{3,}", with: "\n\n", in: markdown)
-        
+
         if options.contains(.mastodon) {
             markdown = markdown
-            // Add space between hashtags and mentions that follow each other
+                // Add space between hashtags and mentions that follow each other
                 .replacingOccurrences(of: ")[", with: ") [")
         }
-        
+
         return markdown
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
-    
+
     private func markdownFormattedRoot(
         options: MarkdownGenerator.Options,
         context: OutputContext,
@@ -53,7 +53,7 @@ extension Node {
     ) -> String {
         var result = ""
         let childrenWithContent = self.getChildNodes().filter { $0.shouldRender() }
-        
+
         for (index, child) in childrenWithContent.enumerated() {
             var context: OutputContext = []
             if childrenWithContent.count == 1 {
@@ -67,10 +67,10 @@ extension Node {
             }
             result += child.markdownFormatted(options: options, context: context, childIndex: index)
         }
-        
+
         return result
     }
-    
+
     private func markdownFormatted(
         options: MarkdownGenerator.Options,
         context: OutputContext,
@@ -79,7 +79,7 @@ extension Node {
     ) -> String {
         var result = ""
         let children = getChildNodes()
-        
+
         switch self.nodeName() {
         case "pre":
             if context.contains(.isPre) {
@@ -101,9 +101,9 @@ extension Node {
                     if classes.contains("invisible") {
                         break
                     }
-                    
+
                     result += output(children, options: options)
-                    
+
                     if classes.contains("ellipsis") {
                         result += "…"
                     }
@@ -118,42 +118,126 @@ extension Node {
                !context.contains(.isFirstChild) {
                 result += "\n"
             }
-            
+
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            
+
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
                 result += "\n"
+            }
+        case "h1":
+            if !context.contains(.isSingleChildInRoot),
+               !context.contains(.isFirstChild) {
+                result += "\n"
+            }
+
+            result += options.contains(.mastodon) ? "**" : "#"
+            result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+            result += options.contains(.mastodon) ? "**" : "#"
+
+            if !context.contains(.isSingleChildInRoot),
+               !context.contains(.isFinalChild) {
+                result += "\n\n"
+            }
+        case "h2":
+            if !context.contains(.isSingleChildInRoot),
+               !context.contains(.isFirstChild) {
+                result += "\n"
+            }
+
+            result += options.contains(.mastodon) ? "**" : "##"
+            result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+            result += options.contains(.mastodon) ? "**" : "##"
+
+            if !context.contains(.isSingleChildInRoot),
+               !context.contains(.isFinalChild) {
+                result += "\n\n"
+            }
+        case "h3":
+            if !context.contains(.isSingleChildInRoot),
+               !context.contains(.isFirstChild) {
+                result += "\n"
+            }
+
+            result += options.contains(.mastodon) ? "**" : "###"
+            result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+            result += options.contains(.mastodon) ? "**" : "###"
+
+            if !context.contains(.isSingleChildInRoot),
+               !context.contains(.isFinalChild) {
+                result += "\n\n"
+            }
+        case "h4":
+            if !context.contains(.isSingleChildInRoot),
+               !context.contains(.isFirstChild) {
+                result += "\n"
+            }
+
+            result += options.contains(.mastodon) ? "**" : "####"
+            result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+            result += options.contains(.mastodon) ? "**" : "####"
+
+            if !context.contains(.isSingleChildInRoot),
+               !context.contains(.isFinalChild) {
+                result += "\n\n"
+            }
+        case "h5":
+            if !context.contains(.isSingleChildInRoot),
+               !context.contains(.isFirstChild) {
+                result += "\n"
+            }
+
+            result += options.contains(.mastodon) ? "**" : "#####"
+            result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+            result += options.contains(.mastodon) ? "**" : "#####"
+
+            if !context.contains(.isSingleChildInRoot),
+               !context.contains(.isFinalChild) {
+                result += "\n\n"
+            }
+        case "h6":
+            if !context.contains(.isSingleChildInRoot),
+               !context.contains(.isFirstChild) {
+                result += "\n"
+            }
+
+            result += options.contains(.mastodon) ? "**" : "######"
+            result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+            result += options.contains(.mastodon) ? "**" : "######"
+
+            if !context.contains(.isSingleChildInRoot),
+               !context.contains(.isFinalChild) {
+                result += "\n\n"
             }
         case "br":
             if !context.contains(.isFinalChild) {
                 result += "\n"
             }
-            // TODO: strip whitespace on the next line of text, immediately after this linebreak
+        // TODO: strip whitespace on the next line of text, immediately after this linebreak
         case "em", "i":
             var prefix = ""
             var postfix = ""
-            
+
             let blockToPass: (String, String) -> Void = {
                 prefix = $0
                 postfix = $1
             }
-            
+
             let text = output(children, options: options, prefixPostfixBlock: blockToPass)
-            
+
             // I'd rather use _ here, but cmark-gfm has better behaviour with *
             result += "\(prefix)*\(text)*\(postfix)"
         case "strong", "b":
             var prefix = ""
             var postfix = ""
-            
+
             let blockToPass: (String, String) -> Void = {
                 prefix = $0
                 postfix = $1
             }
-            
+
             let text = output(children, options: options, prefixPostfixBlock: blockToPass)
-            
+
             result += "\(prefix)**\(text)**\(postfix)"
         case "a":
             if !context.contains(.isCode), let destination = getAttributes()?.get(key: "href"), !destination.isEmpty {
@@ -166,7 +250,7 @@ extension Node {
                 result += "\n\n"
             }
             result += output(children, options: options, context: .isUnorderedList)
-            
+
             if !context.contains(.isFinalChild) {
                 result += "\n\n"
             }
@@ -175,7 +259,7 @@ extension Node {
                 result += "\n\n"
             }
             result += output(children, options: options, context: .isOrderedList)
-            
+
             if !context.contains(.isFinalChild) {
                 result += "\n\n"
             }
@@ -192,7 +276,7 @@ extension Node {
             }
         case "#text":
             // replace all whitespace with a single space, and escape *
-            
+
             // Notes:
             // the first space here is an ideographic space, U+3000
             // second space is non-breaking space, U+00A0
@@ -213,20 +297,20 @@ extension Node {
         default:
             result += output(children, options: options)
         }
-        
+
         return result
     }
-    
+
     private func replace(regex pattern: String, with replacement: String, in string: String) -> String {
         guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
             return string
         }
-        
+
         let range = NSRange(location: 0, length: string.utf16.count)
-        
+
         return regex.stringByReplacingMatches(in: string, options: [], range: range, withTemplate: replacement)
     }
-    
+
     private func output(
         _ children: [Node],
         options: MarkdownGenerator.Options,
@@ -235,7 +319,7 @@ extension Node {
     ) -> String {
         var result = ""
         let childrenWithContent = children.filter { $0.shouldRender() }
-        
+
         for (index, child) in childrenWithContent.enumerated() {
             var context = context
             if index == 0 {
@@ -246,7 +330,7 @@ extension Node {
             }
             result += child.markdownFormatted(options: options, context: context, childIndex: index, prefixPostfixBlock: prefixPostfixBlock)
         }
-        
+
         if let prefixPostfixBlock = prefixPostfixBlock {
             if result.hasPrefix(" "), result.hasSuffix(" ") {
                 prefixPostfixBlock(" ", " ")
@@ -259,15 +343,15 @@ extension Node {
                 result = result.trimmingCharacters(in: .whitespaces)
             }
         }
-        
+
         return result.stringByDecodingHTMLEntities
     }
-    
+
     private func shouldRender() -> Bool {
         if let element = self as? TextNode {
             return !element.isBlank()
         }
-        
+
         switch nodeName() {
         case "br":
             return true
