@@ -267,22 +267,19 @@ extension Node {
 
             result += "\(prefix)**\(text)**\(postfix)"
         case "a":
-            if !context.contains(.isCode),
-               let classes = getAttributes()?.get(key: "class").split(separator: " ") {
-                if options.contains(.fedicat) {
-                    // both mentions and hashtags
-                    if classes.contains("mention") {
-                        result += Markdown.bold
-                        result += output(children, options: options)
-                        result += Markdown.bold
-                        break
-                    }
-                }
+            let content = output(children, options: options)
+            if options.contains(.fedicat),
+               !context.contains(.isCode),
+               content.hasPrefix("@") || content.hasPrefix("#") {
+                result += Markdown.bold
+                result += content
+                result += Markdown.bold
+                break
             }
             if !context.contains(.isCode), let destination = getAttributes()?.get(key: "href"), !destination.isEmpty {
-                result += "[\(output(children, options: options))](\(destination))"
+                result += "[\(content)](\(destination))"
             } else {
-                result += output(children, options: options)
+                result += content
             }
         case "ul":
             if !context.contains(.isFirstChild) {
