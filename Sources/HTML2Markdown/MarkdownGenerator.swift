@@ -24,6 +24,8 @@ public enum MarkdownGenerator {
         }
     }
     
+    public static let lbreak = "\n"
+    public static let pbreak = "\n\n"
     public static let bold = "**"
     public static let italic = "*"
     public static let h1 = "#"
@@ -42,7 +44,9 @@ extension Node {
         var markdown = markdownFormattedRoot(options: options, context: [], childIndex: 0)
 
         // we only want a maximum of two consecutive newlines
-        markdown = replace(regex: "[\n]{3,}", with: "\n\n", in: markdown)
+        markdown = replace(regex: "[\n]{3,}",
+                           with: MarkdownGenerator.lbreak,
+                           in: markdown)
 
         if options.contains(.mastodon) {
             markdown = markdown
@@ -125,19 +129,19 @@ extension Node {
         case "p":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += "\n"
+                result += MarkdownGenerator.lbreak
             }
 
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += "\n"
+                result += MarkdownGenerator.lbreak
             }
         case "h1":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += "\n"
+                result += MarkdownGenerator.lbreak
             }
 
             result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h1
@@ -146,12 +150,12 @@ extension Node {
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += "\n\n"
+                result += MarkdownGenerator.pbreak
             }
         case "h2":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += "\n"
+                result += MarkdownGenerator.lbreak
             }
 
             result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h2
@@ -160,12 +164,12 @@ extension Node {
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += "\n\n"
+                result += MarkdownGenerator.pbreak
             }
         case "h3":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += "\n"
+                result += MarkdownGenerator.lbreak
             }
 
             result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h3
@@ -174,12 +178,12 @@ extension Node {
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += "\n\n"
+                result += MarkdownGenerator.pbreak
             }
         case "h4":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += "\n"
+                result += MarkdownGenerator.lbreak
             }
 
             result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h4
@@ -188,12 +192,12 @@ extension Node {
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += "\n\n"
+                result += MarkdownGenerator.pbreak
             }
         case "h5":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += "\n"
+                result += MarkdownGenerator.lbreak
             }
 
             result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h5
@@ -202,12 +206,12 @@ extension Node {
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += "\n\n"
+                result += MarkdownGenerator.pbreak
             }
         case "h6":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += "\n"
+                result += MarkdownGenerator.lbreak
             }
 
             result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h6
@@ -216,11 +220,11 @@ extension Node {
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += "\n\n"
+                result += MarkdownGenerator.pbreak
             }
         case "br":
             if !context.contains(.isFinalChild) {
-                result += "\n"
+                result += MarkdownGenerator.lbreak
             }
         // TODO: strip whitespace on the next line of text, immediately after this linebreak
         case "em", "i":
@@ -256,21 +260,21 @@ extension Node {
             }
         case "ul":
             if !context.contains(.isFirstChild) {
-                result += "\n\n"
+                result += MarkdownGenerator.pbreak
             }
             result += output(children, options: options, context: .isUnorderedList)
 
             if !context.contains(.isFinalChild) {
-                result += "\n\n"
+                result += MarkdownGenerator.pbreak
             }
         case "ol":
             if !context.contains(.isFirstChild) {
-                result += "\n\n"
+                result += MarkdownGenerator.pbreak
             }
             result += output(children, options: options, context: .isOrderedList)
 
             if !context.contains(.isFinalChild) {
-                result += "\n\n"
+                result += MarkdownGenerator.pbreak
             }
         case "li":
             if context.contains(.isUnorderedList) {
@@ -281,7 +285,7 @@ extension Node {
                 result += "\(childIndex + 1). \(output(children, options: options))"
             }
             if !context.contains(.isFinalChild) {
-                result += "\n"
+                result += MarkdownGenerator.lbreak
             }
         case "#text":
             // replace all whitespace with a single space, and escape *
