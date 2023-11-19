@@ -18,6 +18,8 @@ public enum MarkdownGenerator {
         public static let escapeMarkdown = Options(rawValue: 1 << 1)
         /// Try to respect Mastodon classes
         public static let mastodon = Options(rawValue: 1 << 2)
+        /// Fedicat customizations
+        public static let fedicat = Options(rawValue: 1 << 3)
 
         public init(rawValue: Int) {
             self.rawValue = rawValue
@@ -58,6 +60,12 @@ extension Node {
             markdown = markdown
                 // Add space between hashtags and mentions that follow each other
                 .replacingOccurrences(of: ")[", with: ") [")
+        }
+
+        if options.contains(.fedicat) {
+            markdown = markdown
+                // Add space between hashtags and mentions that follow each other
+                .replacingOccurrences(of: "****", with: "** **")
         }
 
         return markdown
@@ -259,26 +267,14 @@ extension Node {
 
             result += "\(prefix)**\(text)**\(postfix)"
         case "a":
-            if let classes = getAttributes()?.get(key: "class").split(separator: " ") {
-                if options.contains(.mastodon) {
+            if !context.contains(.isCode),
+               let classes = getAttributes()?.get(key: "class").split(separator: " ") {
+                if options.contains(.fedicat) {
+                    // both mentions and hashtags
                     if classes.contains("mention") {
                         result += Markdown.bold
                         result += output(children, options: options)
                         result += Markdown.bold
-                        if !context.contains(.isSingleChildInRoot),
-                           !context.contains(.isFinalChild) {
-                            result += Markdown.space
-                        }
-                        break
-                    }
-                    if classes.contains("hashtag") {
-                        result += Markdown.bold
-                        result += output(children, options: options)
-                        result += Markdown.bold
-                        if !context.contains(.isSingleChildInRoot),
-                           !context.contains(.isFinalChild) {
-                            result += Markdown.space
-                        }
                         break
                     }
                 }
