@@ -23,7 +23,11 @@ public enum MarkdownGenerator {
             self.rawValue = rawValue
         }
     }
-    
+}
+
+public enum Markdown {
+    public static let empty = ""
+    public static let space = " "
     public static let lbreak = "\n"
     public static let pbreak = "\n\n"
     public static let bold = "**"
@@ -34,6 +38,8 @@ public enum MarkdownGenerator {
     public static let h4 = "####"
     public static let h5 = "#####"
     public static let h6 = "######"
+    public static let pre = "\n```\n"
+    public static let code = "`"
 }
 
 extension Node {
@@ -45,7 +51,7 @@ extension Node {
 
         // we only want a maximum of two consecutive newlines
         markdown = replace(regex: "[\n]{3,}",
-                           with: MarkdownGenerator.lbreak,
+                           with: Markdown.lbreak,
                            in: markdown)
 
         if options.contains(.mastodon) {
@@ -64,7 +70,7 @@ extension Node {
         childIndex: Int,
         prefixPostfixBlock: ((String, String) -> Void)? = nil
     ) -> String {
-        var result = ""
+        var result = Markdown.empty
         let childrenWithContent = self.getChildNodes().filter { $0.shouldRender() }
 
         for (index, child) in childrenWithContent.enumerated() {
@@ -90,7 +96,7 @@ extension Node {
         childIndex: Int,
         prefixPostfixBlock: ((String, String) -> Void)? = nil
     ) -> String {
-        var result = ""
+        var result = Markdown.empty
         let children = getChildNodes()
 
         switch self.nodeName() {
@@ -98,7 +104,7 @@ extension Node {
             if context.contains(.isPre) {
                 result += output(children, options: options, context: .isCode)
             } else {
-                result += "\n```\n" + output(children, options: options, context: .isPre).trimmingCharacters(in: .whitespacesAndNewlines) + "\n```\n"
+                result += Markdown.pre + output(children, options: options, context: .isPre).trimmingCharacters(in: .whitespacesAndNewlines) + Markdown.pre
             }
         case "code":
             if context.contains(.isCode) {
@@ -106,7 +112,7 @@ extension Node {
             } else if context.contains(.isPre) {
                 result += output(children, options: options, context: .isCode)
             } else {
-                result += "`" + output(children, options: options, context: .isCode) + "`"
+                result += Markdown.code + output(children, options: options, context: .isCode) + Markdown.code
             }
         case "span":
             if let classes = getAttributes()?.get(key: "class").split(separator: " ") {
@@ -129,107 +135,107 @@ extension Node {
         case "p":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += MarkdownGenerator.lbreak
+                result += Markdown.lbreak
             }
 
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += MarkdownGenerator.lbreak
+                result += Markdown.lbreak
             }
         case "h1":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += MarkdownGenerator.lbreak
+                result += Markdown.lbreak
             }
 
-            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h1
+            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h1
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h1
+            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h1
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += MarkdownGenerator.pbreak
+                result += Markdown.pbreak
             }
         case "h2":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += MarkdownGenerator.lbreak
+                result += Markdown.lbreak
             }
 
-            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h2
+            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h2
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h2
+            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h2
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += MarkdownGenerator.pbreak
+                result += Markdown.pbreak
             }
         case "h3":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += MarkdownGenerator.lbreak
+                result += Markdown.lbreak
             }
 
-            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h3
+            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h3
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h3
+            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h3
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += MarkdownGenerator.pbreak
+                result += Markdown.pbreak
             }
         case "h4":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += MarkdownGenerator.lbreak
+                result += Markdown.lbreak
             }
 
-            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h4
+            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h4
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h4
+            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h4
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += MarkdownGenerator.pbreak
+                result += Markdown.pbreak
             }
         case "h5":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += MarkdownGenerator.lbreak
+                result += Markdown.lbreak
             }
 
-            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h5
+            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h5
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h5
+            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h5
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += MarkdownGenerator.pbreak
+                result += Markdown.pbreak
             }
         case "h6":
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFirstChild) {
-                result += MarkdownGenerator.lbreak
+                result += Markdown.lbreak
             }
 
-            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h6
+            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h6
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h6
+            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h6
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
-                result += MarkdownGenerator.pbreak
+                result += Markdown.pbreak
             }
         case "br":
             if !context.contains(.isFinalChild) {
-                result += MarkdownGenerator.lbreak
+                result += Markdown.lbreak
             }
         // TODO: strip whitespace on the next line of text, immediately after this linebreak
         case "em", "i":
-            var prefix = ""
-            var postfix = ""
+            var prefix = Markdown.empty
+            var postfix = Markdown.empty
 
             let blockToPass: (String, String) -> Void = {
                 prefix = $0
@@ -241,8 +247,8 @@ extension Node {
             // I'd rather use _ here, but cmark-gfm has better behaviour with *
             result += "\(prefix)*\(text)*\(postfix)"
         case "strong", "b":
-            var prefix = ""
-            var postfix = ""
+            var prefix = Markdown.empty
+            var postfix = Markdown.empty
 
             let blockToPass: (String, String) -> Void = {
                 prefix = $0
@@ -253,6 +259,30 @@ extension Node {
 
             result += "\(prefix)**\(text)**\(postfix)"
         case "a":
+            if let classes = getAttributes()?.get(key: "class").split(separator: " ") {
+                if options.contains(.mastodon) {
+                    if classes.contains("mention") {
+                        result += Markdown.bold
+                        result += output(children, options: options)
+                        result += Markdown.bold
+                        if !context.contains(.isSingleChildInRoot),
+                           !context.contains(.isFinalChild) {
+                            result += Markdown.space
+                        }
+                        break
+                    }
+                    if classes.contains("hashtag") {
+                        result += Markdown.bold
+                        result += output(children, options: options)
+                        result += Markdown.bold
+                        if !context.contains(.isSingleChildInRoot),
+                           !context.contains(.isFinalChild) {
+                            result += Markdown.space
+                        }
+                        break
+                    }
+                }
+            }
             if !context.contains(.isCode), let destination = getAttributes()?.get(key: "href"), !destination.isEmpty {
                 result += "[\(output(children, options: options))](\(destination))"
             } else {
@@ -260,21 +290,21 @@ extension Node {
             }
         case "ul":
             if !context.contains(.isFirstChild) {
-                result += MarkdownGenerator.pbreak
+                result += Markdown.pbreak
             }
             result += output(children, options: options, context: .isUnorderedList)
 
             if !context.contains(.isFinalChild) {
-                result += MarkdownGenerator.pbreak
+                result += Markdown.pbreak
             }
         case "ol":
             if !context.contains(.isFirstChild) {
-                result += MarkdownGenerator.pbreak
+                result += Markdown.pbreak
             }
             result += output(children, options: options, context: .isOrderedList)
 
             if !context.contains(.isFinalChild) {
-                result += MarkdownGenerator.pbreak
+                result += Markdown.pbreak
             }
         case "li":
             if context.contains(.isUnorderedList) {
@@ -285,7 +315,7 @@ extension Node {
                 result += "\(childIndex + 1). \(output(children, options: options))"
             }
             if !context.contains(.isFinalChild) {
-                result += MarkdownGenerator.lbreak
+                result += Markdown.lbreak
             }
         case "#text":
             // replace all whitespace with a single space, and escape *
@@ -294,7 +324,7 @@ extension Node {
             // the first space here is an ideographic space, U+3000
             // second space is non-breaking space, U+00A0
             // third space is a regular space, U+0020
-            let text = replace(regex: "[　  \t\n\r]{1,}", with: " ", in: description).stringByDecodingHTMLEntities
+            let text = replace(regex: "[　  \t\n\r]{1,}", with: Markdown.space, in: description).stringByDecodingHTMLEntities
             if !text.isEmpty {
                 if options.contains(.escapeMarkdown) {
                     result += text
@@ -330,7 +360,7 @@ extension Node {
         context: OutputContext = [],
         prefixPostfixBlock: ((String, String) -> Void)? = nil
     ) -> String {
-        var result = ""
+        var result = Markdown.empty
         let childrenWithContent = children.filter { $0.shouldRender() }
 
         for (index, child) in childrenWithContent.enumerated() {
@@ -345,14 +375,16 @@ extension Node {
         }
 
         if let prefixPostfixBlock = prefixPostfixBlock {
-            if result.hasPrefix(" "), result.hasSuffix(" ") {
-                prefixPostfixBlock(" ", " ")
+            if result.hasPrefix(Markdown.space), result.hasSuffix(Markdown.space) {
+                prefixPostfixBlock(Markdown.space,
+                                   Markdown.space)
                 result = result.trimmingCharacters(in: .whitespaces)
-            } else if result.hasPrefix(" ") {
-                prefixPostfixBlock(" ", "")
+            } else if result.hasPrefix(Markdown.space) {
+                prefixPostfixBlock(Markdown.space,
+                                   Markdown.space)
                 result = result.trimmingCharacters(in: .whitespaces)
-            } else if result.hasSuffix(" ") {
-                prefixPostfixBlock("", " ")
+            } else if result.hasSuffix(Markdown.space) {
+                prefixPostfixBlock(Markdown.empty, Markdown.space)
                 result = result.trimmingCharacters(in: .whitespaces)
             }
         }
