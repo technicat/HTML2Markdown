@@ -18,8 +18,12 @@ public enum MarkdownGenerator {
         public static let escapeMarkdown = Options(rawValue: 1 << 1)
         /// Try to respect Mastodon classes
         public static let mastodon = Options(rawValue: 1 << 2)
-        /// Fedicat customizations
-        public static let fedicat = Options(rawValue: 1 << 3)
+        /// Generate markdown that SwiftUI Text understands
+        public static let swiftui = Options(rawValue: 1 << 3)
+        /// boldface hashtags and remove links
+        public static let boldTag = Options(rawValue: 1 << 4)
+        /// boldface hashtags and remove links
+        public static let boldMention = Options(rawValue: 1 << 5)
 
         public init(rawValue: Int) {
             self.rawValue = rawValue
@@ -27,21 +31,22 @@ public enum MarkdownGenerator {
     }
 }
 
+/// markdown constants
 public enum Markdown {
-    public static let empty = ""
-    public static let space = " "
-    public static let lbreak = "\n"
-    public static let pbreak = "\n\n"
-    public static let bold = "**"
-    public static let italic = "*"
-    public static let h1 = "#"
-    public static let h2 = "##"
-    public static let h3 = "###"
-    public static let h4 = "####"
-    public static let h5 = "#####"
-    public static let h6 = "######"
-    public static let pre = "\n```\n"
-    public static let code = "`"
+    static let empty = ""
+    static let space = " "
+    static let lbreak = "\n"
+    static let pbreak = "\n\n"
+    static let bold = "**"
+    static let italic = "*"
+    static let h1 = "#"
+    static let h2 = "##"
+    static let h3 = "###"
+    static let h4 = "####"
+    static let h5 = "#####"
+    static let h6 = "######"
+    static let pre = "\n```\n"
+    static let code = "`"
 }
 
 extension Node {
@@ -62,7 +67,7 @@ extension Node {
                 .replacingOccurrences(of: ")[", with: ") [")
         }
 
-        if options.contains(.fedicat) {
+        if options.contains(.boldTag) || options.contains(.boldMention) {
             markdown = markdown
                 // Add space between hashtags and mentions that follow each other
                 .replacingOccurrences(of: "****", with: "** **")
@@ -158,9 +163,9 @@ extension Node {
                 result += Markdown.lbreak
             }
 
-            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h1
+            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h1
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h1
+            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h1
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
@@ -172,9 +177,9 @@ extension Node {
                 result += Markdown.lbreak
             }
 
-            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h2
+            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h2
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h2
+            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h2
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
@@ -186,9 +191,9 @@ extension Node {
                 result += Markdown.lbreak
             }
 
-            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h3
+            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h3
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h3
+            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h3
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
@@ -200,9 +205,9 @@ extension Node {
                 result += Markdown.lbreak
             }
 
-            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h4
+            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h4
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h4
+            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h4
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
@@ -214,9 +219,9 @@ extension Node {
                 result += Markdown.lbreak
             }
 
-            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h5
+            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h5
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h5
+            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h5
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
@@ -228,9 +233,9 @@ extension Node {
                 result += Markdown.lbreak
             }
 
-            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h6
+            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h6
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? Markdown.bold : Markdown.h6
+            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h6
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
@@ -268,9 +273,10 @@ extension Node {
             result += "\(prefix)**\(text)**\(postfix)"
         case "a":
             let content = output(children, options: options)
-            if options.contains(.fedicat),
-               !context.contains(.isCode),
-               content.hasPrefix("@") || content.hasPrefix("#") {
+            if !context.contains(.isCode),
+               (options.contains(.boldMention) && content.hasPrefix("@")) ||
+                (options.contains(.boldTag) &&
+                    content.hasPrefix("#")) {
                 result += Markdown.bold
                 result += content
                 result += Markdown.bold
