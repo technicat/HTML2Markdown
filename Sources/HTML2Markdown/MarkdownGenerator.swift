@@ -23,6 +23,15 @@ public enum MarkdownGenerator {
             self.rawValue = rawValue
         }
     }
+    
+    public static let bold = "**"
+    public static let italic = "*"
+    public static let h1 = "#"
+    public static let h2 = "##"
+    public static let h3 = "###"
+    public static let h4 = "####"
+    public static let h5 = "#####"
+    public static let h6 = "######"
 }
 
 extension Node {
@@ -131,9 +140,9 @@ extension Node {
                 result += "\n"
             }
 
-            result += options.contains(.mastodon) ? "**" : "#"
+            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h1
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? "**" : "#"
+            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h1
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
@@ -145,9 +154,9 @@ extension Node {
                 result += "\n"
             }
 
-            result += options.contains(.mastodon) ? "**" : "##"
+            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h2
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? "**" : "##"
+            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h2
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
@@ -159,9 +168,9 @@ extension Node {
                 result += "\n"
             }
 
-            result += options.contains(.mastodon) ? "**" : "###"
+            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h3
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? "**" : "###"
+            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h3
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
@@ -173,9 +182,9 @@ extension Node {
                 result += "\n"
             }
 
-            result += options.contains(.mastodon) ? "**" : "####"
+            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h4
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? "**" : "####"
+            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h4
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
@@ -187,9 +196,9 @@ extension Node {
                 result += "\n"
             }
 
-            result += options.contains(.mastodon) ? "**" : "#####"
+            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h5
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? "**" : "#####"
+            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h5
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
@@ -201,9 +210,9 @@ extension Node {
                 result += "\n"
             }
 
-            result += options.contains(.mastodon) ? "**" : "######"
+            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h6
             result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.mastodon) ? "**" : "######"
+            result += options.contains(.mastodon) ? MarkdownGenerator.bold : MarkdownGenerator.h6
 
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
