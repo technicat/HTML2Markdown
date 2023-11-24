@@ -39,12 +39,12 @@ public enum Markdown {
     static let pbreak = "\n\n"
     static let bold = "**"
     static let italic = "*"
-    static let h1 = "#"
-    static let h2 = "##"
-    static let h3 = "###"
-    static let h4 = "####"
-    static let h5 = "#####"
-    static let h6 = "######"
+    static let h1 = "# "
+    static let h2 = "## "
+    static let h3 = "### "
+    static let h4 = "#### "
+    static let h5 = "##### "
+    static let h6 = "###### "
     static let pre = "\n```\n"
     static let code = "`"
 }
@@ -71,6 +71,9 @@ extension Node {
             markdown = markdown
                 // Add space between hashtags and mentions that follow each other
                 .replacingOccurrences(of: "****", with: "** **")
+         /*   markdown = markdown
+                // Add space between hashtags and mentions that follow each other
+                .replacingOccurrences(of: "  ", with: " ") */
         }
 
         return markdown
@@ -162,11 +165,14 @@ extension Node {
                !context.contains(.isFirstChild) {
                 result += Markdown.lbreak
             }
-
-            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h1
-            result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h1
-
+            if options.contains(.swiftui) {
+                result += Markdown.bold
+                result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+                result += Markdown.bold 
+            } else {
+                result += Markdown.h1
+                result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+            }
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
                 result += Markdown.pbreak
@@ -176,11 +182,14 @@ extension Node {
                !context.contains(.isFirstChild) {
                 result += Markdown.lbreak
             }
-
-            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h2
-            result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h2
-
+            if options.contains(.swiftui) {
+                result += Markdown.bold
+                result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+                result += Markdown.bold 
+            } else {
+                result += Markdown.h2
+                result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+            }
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
                 result += Markdown.pbreak
@@ -190,11 +199,14 @@ extension Node {
                !context.contains(.isFirstChild) {
                 result += Markdown.lbreak
             }
-
-            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h3
-            result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h3
-
+            if options.contains(.swiftui) {
+                result += Markdown.bold
+                result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+                result += Markdown.bold 
+            } else {
+                result += Markdown.h3
+                result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+            }
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
                 result += Markdown.pbreak
@@ -204,11 +216,14 @@ extension Node {
                !context.contains(.isFirstChild) {
                 result += Markdown.lbreak
             }
-
-            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h4
-            result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h4
-
+            if options.contains(.swiftui) {
+                result += Markdown.bold
+                result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+                result += Markdown.bold 
+            } else {
+                result += Markdown.h4
+                result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+            }
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
                 result += Markdown.pbreak
@@ -218,11 +233,14 @@ extension Node {
                !context.contains(.isFirstChild) {
                 result += Markdown.lbreak
             }
-
-            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h5
-            result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h5
-
+            if options.contains(.swiftui) {
+                result += Markdown.bold
+                result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+                result += Markdown.bold 
+            } else {
+                result += Markdown.h5
+                result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+            }
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
                 result += Markdown.pbreak
@@ -232,11 +250,14 @@ extension Node {
                !context.contains(.isFirstChild) {
                 result += Markdown.lbreak
             }
-
-            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h6
-            result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-            result += options.contains(.swiftui) ? Markdown.bold : Markdown.h6
-
+            if options.contains(.swiftui) {
+                result += Markdown.bold
+                result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+                result += Markdown.bold 
+            } else {
+                result += Markdown.h6
+                result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
+            }
             if !context.contains(.isSingleChildInRoot),
                !context.contains(.isFinalChild) {
                 result += Markdown.pbreak
@@ -277,6 +298,7 @@ extension Node {
                (options.contains(.boldMention) && content.hasPrefix("@")) ||
                 (options.contains(.boldTag) &&
                     content.hasPrefix("#")) {
+             //   result += Markdown.space
                 result += Markdown.bold
                 result += content
                 result += Markdown.bold
