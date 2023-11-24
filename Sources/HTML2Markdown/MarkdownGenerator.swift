@@ -69,11 +69,9 @@ extension Node {
 
         if options.contains(.boldTag) || options.contains(.boldMention) {
             markdown = markdown
-                // Add space between hashtags and mentions that follow each other
-                .replacingOccurrences(of: "****", with: "** **")
-         /*   markdown = markdown
-                // Add space between hashtags and mentions that follow each other
-                .replacingOccurrences(of: "  ", with: " ") */
+                .replacingOccurrences(of: "  **", with: " **")
+            markdown = markdown
+                .replacingOccurrences(of: "\n **", with: "\n**")
         }
 
         return markdown
@@ -168,7 +166,7 @@ extension Node {
             if options.contains(.swiftui) {
                 result += Markdown.bold
                 result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-                result += Markdown.bold 
+                result += Markdown.bold
             } else {
                 result += Markdown.h1
                 result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -185,7 +183,7 @@ extension Node {
             if options.contains(.swiftui) {
                 result += Markdown.bold
                 result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-                result += Markdown.bold 
+                result += Markdown.bold
             } else {
                 result += Markdown.h2
                 result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -202,7 +200,7 @@ extension Node {
             if options.contains(.swiftui) {
                 result += Markdown.bold
                 result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-                result += Markdown.bold 
+                result += Markdown.bold
             } else {
                 result += Markdown.h3
                 result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -219,7 +217,7 @@ extension Node {
             if options.contains(.swiftui) {
                 result += Markdown.bold
                 result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-                result += Markdown.bold 
+                result += Markdown.bold
             } else {
                 result += Markdown.h4
                 result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -236,7 +234,7 @@ extension Node {
             if options.contains(.swiftui) {
                 result += Markdown.bold
                 result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-                result += Markdown.bold 
+                result += Markdown.bold
             } else {
                 result += Markdown.h5
                 result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -253,7 +251,7 @@ extension Node {
             if options.contains(.swiftui) {
                 result += Markdown.bold
                 result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
-                result += Markdown.bold 
+                result += Markdown.bold
             } else {
                 result += Markdown.h6
                 result += output(children, options: options).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -294,17 +292,26 @@ extension Node {
             result += "\(prefix)**\(text)**\(postfix)"
         case "a":
             let content = output(children, options: options)
-            if !context.contains(.isCode),
-               (options.contains(.boldMention) && content.hasPrefix("@")) ||
+            if context.contains(.isCode) {
+                result += content
+                break
+            }
+            // could check for mention and hashtag classes
+            // but need to check if that works cross-platform
+            // may need an option to extract mention domain from url
+            // e.g. when reediting
+            if (options.contains(.boldMention) && content.hasPrefix("@")) ||
                 (options.contains(.boldTag) &&
                     content.hasPrefix("#")) {
-             //   result += Markdown.space
+                // this should be dependend on whether
+                // there is preceding whitespace
+                result += Markdown.space
                 result += Markdown.bold
                 result += content
                 result += Markdown.bold
                 break
             }
-            if !context.contains(.isCode), let destination = getAttributes()?.get(key: "href"), !destination.isEmpty {
+            if let destination = getAttributes()?.get(key: "href"), !destination.isEmpty {
                 result += "[\(content)](\(destination))"
             } else {
                 result += content
