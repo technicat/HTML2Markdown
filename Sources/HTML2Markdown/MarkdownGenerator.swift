@@ -71,6 +71,20 @@ extension Node {
         }
 
         if options.contains(.boldTag) || options.contains(.boldMention) {
+            let startrx = Regex {
+                Capture {
+                    ChoiceOf {
+                        " "
+                        "\n"
+                        // this breaks boldface in some cases
+                        //  Anchor.startOfLine
+                    }
+                }
+                Capture {
+                    " **"
+                }
+            }
+            //  .anchorsMatchLineEndings(true)
             let endrx = Regex {
                 Capture {
                     "** "
@@ -85,35 +99,11 @@ extension Node {
                     }
                 }
             }
-         /*   let mentionRegex = Regex {
-                Capture {
-                        Anchor.startOfLine
-                        One(.whitespace)
-                }
-                Capture {
-                    Markdown.bold
-                  //  ChoiceOf {
-                        "#"
-                       // "@"
-                  //  }
-                    OneOrMore(.word)
-                    Markdown.bold
-                }
-            }
-                .anchorsMatchLineEndings()
-                .wordBoundaryKind(.default)
-            markdown = markdown.replacing(mentionRegex,
-                                 with: { match in "\n\(match.output.2)" }) */
-            markdown = markdown
-               .replacingOccurrences(of: "\n **", with: "\n**")
-           // markdown = markdown
-           //    .replacingOccurrences(of: "** \n", with: "**\n")
-          //  markdown = markdown
-          //      .replacingOccurrences(of: "\r **", with: "\n**")
-            markdown = markdown
-                 .replacingOccurrences(of: "  **", with: " **")
+            .anchorsMatchLineEndings(true)
+            markdown = markdown.replacing(startrx,
+                                          with: { match in "\(match.output.1)**" })
             markdown = markdown.replacing(endrx,
-                                 with: { match in "**\(match.output.2)" })
+                                          with: { match in "**\(match.output.2)" })
         }
 
         return markdown
@@ -342,11 +332,6 @@ extension Node {
             // but need to check if that works cross-platform
             // may need an option to extract mention domain from url
             // e.g. when reediting
-         /*   if !context.contains(.isFirstChild) && ((options.contains(.boldMention) && content.hasPrefix("@")) ||
-                (options.contains(.boldTag) &&
-                 content.hasPrefix("#"))) {
-                result += Markdown.space
-            } */
             if (options.contains(.boldMention) && content.hasPrefix("@")) ||
                 (options.contains(.boldTag) &&
                     content.hasPrefix("#")) {
