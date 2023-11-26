@@ -27,7 +27,7 @@ extension Node {
     /// Extract the raw text from the parsed HTML
     ///
     /// - Parameter options: Options to customize the formatted text
-    func rawText(options: RawTextGenerator.Options = []) -> String {
+    public func rawText(options: RawTextGenerator.Options = []) -> String {
         return rawTextRoot(options: options, context: [], childIndex: 0)
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
