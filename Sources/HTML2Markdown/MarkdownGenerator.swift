@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftSoup
+import RegexBuilder
 
 public enum MarkdownGenerator {
     public struct Options: OptionSet {
@@ -49,6 +50,8 @@ public enum Markdown {
     static let code = "`"
 }
 
+@available(macOS 13, *)
+@available(iOS 16, *)
 extension Node {
     /// The parsed HTML formatted as Markddown
     ///
@@ -68,10 +71,41 @@ extension Node {
         }
 
         if options.contains(.boldTag) || options.contains(.boldMention) {
+         /*   let mentionRegex = Regex {
+                Capture {
+                        Anchor.startOfLine
+                        One(.whitespace)
+                }
+                Capture {
+                    Markdown.bold
+                  //  ChoiceOf {
+                        "#"
+                       // "@"
+                  //  }
+                    OneOrMore(.word)
+                    Markdown.bold
+                }
+            }
+                .anchorsMatchLineEndings()
+                .wordBoundaryKind(.default)
+            markdown = markdown.replacing(mentionRegex,
+                                 with: { match in "\n\(match.output.2)" }) */
+            markdown = markdown
+               .replacingOccurrences(of: "\n **", with: "\n**")
+            markdown = markdown
+               .replacingOccurrences(of: "** \n", with: "**\n")
+          //  markdown = markdown
+          //      .replacingOccurrences(of: "\r **", with: "\n**")
             markdown = markdown
                 .replacingOccurrences(of: "  **", with: " **")
             markdown = markdown
-                .replacingOccurrences(of: "\n **", with: "\n**")
+                .replacingOccurrences(of: "**  ", with: "** ")
+            markdown = markdown
+                .replacingOccurrences(of: "** ,", with: "**,")
+            markdown = markdown
+                .replacingOccurrences(of: "** .", with: "**.")
+            markdown = markdown
+                .replacingOccurrences(of: "** '", with: "**'")
         }
 
         return markdown
@@ -300,15 +334,21 @@ extension Node {
             // but need to check if that works cross-platform
             // may need an option to extract mention domain from url
             // e.g. when reediting
+         /*   if !context.contains(.isFirstChild) && ((options.contains(.boldMention) && content.hasPrefix("@")) ||
+                (options.contains(.boldTag) &&
+                 content.hasPrefix("#"))) {
+                result += Markdown.space
+            } */
             if (options.contains(.boldMention) && content.hasPrefix("@")) ||
                 (options.contains(.boldTag) &&
                     content.hasPrefix("#")) {
-                // this should be dependend on whether
+                // this should be dependent on whether
                 // there is preceding whitespace
                 result += Markdown.space
                 result += Markdown.bold
                 result += content
                 result += Markdown.bold
+                result += Markdown.space
                 break
             }
             if let destination = getAttributes()?.get(key: "href"), !destination.isEmpty {
