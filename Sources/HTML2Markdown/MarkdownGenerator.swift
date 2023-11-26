@@ -71,6 +71,20 @@ extension Node {
         }
 
         if options.contains(.boldTag) || options.contains(.boldMention) {
+            let endrx = Regex {
+                Capture {
+                    "** "
+                }
+                Capture {
+                    ChoiceOf {
+                        " "
+                        ","
+                        "."
+                        "'"
+                        Anchor.endOfLine
+                    }
+                }
+            }
          /*   let mentionRegex = Regex {
                 Capture {
                         Anchor.startOfLine
@@ -92,20 +106,14 @@ extension Node {
                                  with: { match in "\n\(match.output.2)" }) */
             markdown = markdown
                .replacingOccurrences(of: "\n **", with: "\n**")
-            markdown = markdown
-               .replacingOccurrences(of: "** \n", with: "**\n")
+           // markdown = markdown
+           //    .replacingOccurrences(of: "** \n", with: "**\n")
           //  markdown = markdown
           //      .replacingOccurrences(of: "\r **", with: "\n**")
             markdown = markdown
-                .replacingOccurrences(of: "  **", with: " **")
-            markdown = markdown
-                .replacingOccurrences(of: "**  ", with: "** ")
-            markdown = markdown
-                .replacingOccurrences(of: "** ,", with: "**,")
-            markdown = markdown
-                .replacingOccurrences(of: "** .", with: "**.")
-            markdown = markdown
-                .replacingOccurrences(of: "** '", with: "**'")
+                 .replacingOccurrences(of: "  **", with: " **")
+            markdown = markdown.replacing(endrx,
+                                 with: { match in "**\(match.output.2)" })
         }
 
         return markdown
