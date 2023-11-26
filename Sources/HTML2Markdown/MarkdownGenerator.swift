@@ -73,33 +73,20 @@ extension Node {
         if options.contains(.boldTag) || options.contains(.boldMention) {
             let startrx = Regex {
                 Capture {
-                    ChoiceOf {
-                        " "
-                        "\n"
-                        // this breaks boldface in some cases
-                        //  Anchor.startOfLine
-                    }
+                    One(.anyOf(" \n"))
                 }
                 Capture {
                     " **"
                 }
             }
-            //  .anchorsMatchLineEndings(true)
             let endrx = Regex {
                 Capture {
                     "** "
                 }
                 Capture {
-                    ChoiceOf {
-                        " "
-                        ","
-                        "."
-                        "'"
-                        Anchor.endOfLine
-                    }
+                    One(.anyOf(" -,.'!\n"))
                 }
             }
-            .anchorsMatchLineEndings(true)
             markdown = markdown.replacing(startrx,
                                           with: { match in "\(match.output.1)**" })
             markdown = markdown.replacing(endrx,
@@ -328,15 +315,15 @@ extension Node {
                 result += content
                 break
             }
-            // could check for mention and hashtag classes
-            // but need to check if that works cross-platform
-            // may need an option to extract mention domain from url
-            // e.g. when reediting
-            if (options.contains(.boldMention) && content.hasPrefix("@")) ||
+            // could check for Mastodon's mention and hashtag classes
+            // but that's doesn't work cross-platform (e.g. pleroma)
+            if (options.contains(.boldMention) &&
+                    content.hasPrefix("@")) ||
                 (options.contains(.boldTag) &&
                     content.hasPrefix("#")) {
-                // this should be dependent on whether
-                // there is preceding whitespace
+                // would be better to prepend/append space
+                // based on surrounding text
+                // instead of postprocessing cleanup
                 result += Markdown.space
                 result += Markdown.bold
                 result += content
