@@ -25,6 +25,8 @@ public enum MarkdownGenerator {
         public static let boldTag = Options(rawValue: 1 << 4)
         /// boldface hashtags and remove links
         public static let boldMention = Options(rawValue: 1 << 5)
+        /// Append domain to mentions if available
+        public static let fullMention = Options(rawValue: 1 << 6)
 
         public init(rawValue: Int) {
             self.rawValue = rawValue
@@ -69,7 +71,7 @@ extension Node {
                 // Add space between hashtags and mentions that follow each other
                 .replacingOccurrences(of: ")[", with: ") [")
         }
-
+        // remove added space around bold if unnecessary
         if options.contains(.boldTag) || options.contains(.boldMention) {
             let startrx = Regex {
                 Capture {
