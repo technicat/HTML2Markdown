@@ -15,7 +15,7 @@ public enum RawTextGenerator {
         /// Copy link text instead of URL
         public static let keepLinkText = Options(rawValue: 1 << 0)
         /// Append domain to mentions if available
-        public static let fullMentions = Options(rawValue: 1 << 1)
+        public static let fullMention = Options(rawValue: 1 << 1)
         /// Try to respect Mastodon classes
         public static let mastodon = Options(rawValue: 1 << 2)
 
@@ -133,7 +133,7 @@ extension Node {
         case "a":
             let content = output(children, options: options)
             if let destination = getAttributes()?.get(key: "href") {
-                if options.contains(.fullMentions) && content.hasPrefix("@") {
+                if options.contains(.fullMention) && content.hasPrefix("@") {
                     result += content
                     if let domain = URL(string: destination)?.host {
                         result += "@\(domain)"
